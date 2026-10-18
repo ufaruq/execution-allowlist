@@ -171,6 +171,8 @@ func NewHandler(store *RuleStore) http.Handler {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
+		rule.Type = strings.ToUpper(rule.Type)
+		rule.Action = strings.ToUpper(rule.Action)
 		if err := store.Put(rule); err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
@@ -204,6 +206,9 @@ func NewHandler(store *RuleStore) http.Handler {
 		rules := store.List()
 		santaRules := make([]map[string]string, 0, len(rules))
 		for _, rule := range rules {
+			if rule.Type == "PATH" {
+				continue
+			}
 			policy := "ALLOWLIST"
 			if rule.Action == "BLOCK" {
 				policy = "BLOCKLIST"
